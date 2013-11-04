@@ -1,0 +1,99 @@
+#boton{
+    margin-left: 10px;
+    position: absolute;
+    right: 5px;
+    top: 150px;
+}
+#submit{
+    margin: 10px;
+}
+
+#primero{
+    position: relative;
+    top: 10px;
+    left: 50px;
+    border: solid black;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    width: 670px;
+}
+
+#frame1{
+    position: relative;
+    float: left;
+    border: solid black;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    width: 500px;
+}
+.loader1{
+    text-align: center;
+}
+span.dynatree-icon.dynatree-edit-icon
+{
+border: 1px solid red;
+background-position: 0 -112;
+}
+
+p.peque{
+    font-size: 10px;
+}
+
+#demo3{
+    border: 1px solid black;
+    float: left;
+    left: 740px;
+    padding: 5px;
+    position: absolute;
+    top: 10px;
+    width: 300px;
+    height: 300px;
+    overflow: scroll;
+}
+
+#nomarch{
+    margin: 10px;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    left: 20px;
+}
+
+.trabajo1{
+    display: none;
+}
+
+#content{
+    position: absolute;
+    top: 10px;
+    left: 750px;
+    width: 250px;
+    height: 250px;
+    float: right;
+    overflow: scroll;
+}
+
+form label {
+	width: 100%;
+	float: left;
+	display: inline-block;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+form label.error {
+	float: left;
+	color: red;
+	font-weight: normal;
+	padding-left: .5em;
+	vertical-align: top;
+}
+
+.unidades{
+    position: relative;
+    float: left;
+    left: 20px;
+    top: 10px;
+    
+}
