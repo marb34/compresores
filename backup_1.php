@@ -22,16 +22,15 @@ function vali_db($host,$user,$pass,$database){
     $res = mysql_query('SHOW DATABASES');
     while ($row = mysql_fetch_assoc($res)) {
         $valorA=array_search($database,$row);
-        if ($valorA)
-            {
-                echo "ENCONTRADO!!!!".$row["Database"]."\n";
-                $resultado=true;
-            }
+        if ($valorA) $resultado=true;
     }
     mysql_close($link);
     return $resultado;
 }
 
+/**
+ * List of all PM databases
+ */
 function lista_db(){
     echo "Please complete all information relating to the database server\n";
     echo "servername,username,pass :: ";
@@ -93,40 +92,42 @@ function all_tables($host,$user,$pass){
  * @author Marco Ramirez
  */
 function back_db1($host,$user,$pass,$dataname){
-        vali_db($host,$user,$pass,$dataname);
-        $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
-        var_dump($dataname);
-        echo "\nprocessing!!\n";
-        if (is_array($dataname)){
-            for ($i=0;$i<count($dataname);$i++){
-                $db_name=$dataname[$i];
+        if(vali_db($host,$user,$pass,$dataname)){
+            $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
+            var_dump($dataname);
+            echo "\nprocessing!!\n";
+            if (is_array($dataname)){
+                for ($i=0;$i<count($dataname);$i++){
+                    $db_name=$dataname[$i];
+                    $status2=new Clase_Backup_Database;
+                    $valor_retorno=$status2->Backup_Database($host,$user,$pass,$db_name);
+                    echo "\nValor de retorno de la clase :".$valor_retorno."\n";
+                    if($valor_retorno){
+                        $status = $status2->backupTables("*") ? 'OK' : 'KO';
+                    }
+                    else {
+                        echo "Data Base ".$db_name." doesn't exist!\nplease reconnect to the server and review the name of the available databases!\n";
+                        lista_db();
+                    }
+                }
+            //echo "Backup successful $status !!!!!\nverify all the information in dbbackup folder!\n"; 
+            }
+            else {
                 $status2=new Clase_Backup_Database;
-                $valor_retorno=$status2->Backup_Database($host,$user,$pass,$db_name);
+                $valor_retorno=$status2->Backup_Database($host,$user,$pass,$dataname);
                 echo "\nValor de retorno de la clase :".$valor_retorno."\n";
                 if($valor_retorno){
-                    $status = $status2->backupTables("*") ? 'OK' : 'KO';
-                }
-                else {
-                    echo "Data Base ".$db_name."doesn't exist!\nplease reconnect to the server and review the name of the available databases!\n";
-                    lista_db();
-                }
-            }
-        //echo "Backup successful $status !!!!!\nverify all the information in dbbackup folder!\n"; 
+                        $status = $status2->backupTables("*") ? 'OK' : 'KO';
+                        echo "Backup successful $status !!!!!\nverify all the information in dbbackup folder!\n";
+                    }
+                    else {
+                        echo "Data Base ".$dataname."doesn't exist!\nplease reconnect to the server and review the name of the available databases!\n";
+                        lista_db();
+                    }
+                
+            } 
         }
-        else {
-            $status2=new Clase_Backup_Database;
-            $valor_retorno=$status2->Backup_Database($host,$user,$pass,$dataname);
-            echo "\nValor de retorno de la clase :".$valor_retorno."\n";
-            if($valor_retorno){
-                    $status = $status2->backupTables("*") ? 'OK' : 'KO';
-                    echo "Backup successful $status !!!!!\nverify all the information in dbbackup folder!\n";
-                }
-                else {
-                    echo "Data Base ".$dataname."doesn't exist!\nplease reconnect to the server and review the name of the available databases!\n";
-                    lista_db();
-                }
-            
-        } 
+        echo "\nPlease, verify if the databases exist!";
 }
 
 /**
