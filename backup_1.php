@@ -24,7 +24,7 @@ function vali_db($host,$user,$pass,$database){
         $valorA=array_search($database,$row);
         if ($valorA)
             {
-                echo "ENCONTRADO!!! ".$row["Database"]."\n";
+                echo "ENCONTRADO!!!!".$row["Database"]."\n";
                 $resultado=true;
             }
     }
