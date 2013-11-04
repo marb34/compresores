@@ -20,9 +20,11 @@ function vali_db($host,$user,$pass,$database){
     $resultado=FALSE;
     $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
     $res = mysql_query('SHOW DATABASES');
-    while ($row = mysql_fetch_assoc($res)) {
-        $valorA=array_search($database,$row);
-        if ($valorA) $resultado=true;
+    $row=mysql_fetch_assoc($res);
+    print_r($res);
+    print_r(array_intersect($row,$database));
+    if(count(array_intersect($database, $row)) == count($database)){
+        $resultado=TRUE;
     }
     mysql_close($link);
     return $resultado;
@@ -40,7 +42,7 @@ function lista_db(){
     $user=$host_valu[1];
     $pass=$host_valu[2];
     echo "These were the values entered ::".$host." ".$user." ".$pass."\n";
-    $link = mysql_connect("$host","$user","$pass") or die("Can't Connect to the Data Base...");
+    $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
     $res = mysql_query('SHOW DATABASES');
     while ($row = mysql_fetch_assoc($res)) {
         if (substr($row["Database"],0,3)==="wf_" or substr($row["Database"],0,3)==="rp_" or substr($row["Database"],0,3)==="rb_" )
@@ -86,13 +88,16 @@ function all_tables($host,$user,$pass){
  * @param string $host
  * @param string $user
  * @param string $pass
- * @param string $dataname, Name of the database
+ * @param array $dataname, Name of the database(s)
  * @return string $status
  * 
  * @author Marco Ramirez
  */
 function back_db1($host,$user,$pass,$dataname){
-        if(vali_db($host,$user,$pass,$dataname)){
+    //var_dump($dataname);
+        $validador=vali_db($host,$user,$pass,$dataname);
+        print_r($validador);
+        if($validador){
             $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
             var_dump($dataname);
             echo "\nprocessing!!\n";
@@ -127,14 +132,14 @@ function back_db1($host,$user,$pass,$dataname){
                 
             } 
         }
-        echo "\nPlease, verify if the databases exist!";
+        echo "\nPlease, verify if the databases exist!\nYou can use the command listdb";
 }
 
 /**
  * Made a backup of your worspace's databases or a single table
  * @param $table Table name,
  * 
- * Return $status
+ * @return string $status
  * 
  * @author Marco Ramirez
  */
@@ -150,8 +155,7 @@ function backup_databases($table=NULL){
     $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
     if(isset($table)){
         echo $table."\n";
-        if(strpos($table, ',') === TRUE){
-            $posi=strpos($table,","); 
+        if(strpos($table,",")){
             echo "hay comas\n";
             $tablas=dividir($table);
             print_r($tablas);
@@ -160,7 +164,7 @@ function backup_databases($table=NULL){
         else {
             echo "no hay comas\n";
             if ($table==="*"){all_tables($host,$user,$pass);}
-            else { back_db1($host,$user,$pass,$table);}
+            else { back_db1($host,$user,$pass,(array)$table);}
             
             }
         $status="Done";
