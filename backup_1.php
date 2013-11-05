@@ -21,7 +21,10 @@ for($i=1;$cantidad>$i;$i++){
                 if(count($argv)>2){$valor2=$argv[$i+1];
                     if($valor2!=="workspace" && $valor2!=="backup" && $valor2!==" "){
                         echo "-----".$valor2."-----\n";
-                        $status=$pm_back->backup_databases($valor2);
+                        if ($valor2==="*") echo "\nPlease check that you have enough hard disk space to contain all compressed archives\n";
+                        echo "Do you? (Y/N):";
+                        $aceptar = strtoupper(trim(fgets(STDIN)));
+                        if ($aceptar==="Y") $status=$pm_back->backup_databases($valor2);
                     }
                 }
                 else {die('Please use the next parameters "*" or database name "DB1,DB2,DB3"'."\n");}
