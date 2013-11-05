@@ -7,7 +7,10 @@
 require_once("libreria.class.php");
 class pm_backup {
 
-
+    var $host = '';
+    var $username = '';
+    var $passwd = '';
+    var $dbName = '';
 /*Inicio de funciones*/
 
 /**
@@ -20,16 +23,29 @@ class pm_backup {
  * @return Boolean
  */
 function vali_db($host,$user,$pass,$database){
-    $resultado=FALSE;
-    $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
-    $res = mysql_query('SHOW DATABASES');
+    $o=0;
+    $resultado=0;
+    $link = mysql_connect("$host","$user","$pass") or die("Can't Connect to the Data Base...");
+    $res=mysql_list_dbs($link);
     $row=mysql_fetch_assoc($res);
-    print_r($res);
-    print_r(array_intersect($row,$database));
-    if(count(array_intersect($database, $row)) == count($database)){
-        $resultado=TRUE;
+    /*echo "resultado de consulta ::";
+    print_r($row)."\n";
+    echo "Arreglos : ";
+    print_r($row);
+    print_r($database);*/
+    while ($row = mysql_fetch_assoc($res)) {
+        //echo $row["Database"]."\n";
+        $compara=array_intersect($database,$row);
+        if (count($compara)>0){
+            var_dump($compara);
+            $o++;
+        }
+        $resultado=1;
+        
     }
-    mysql_close($link);
+    echo $o."\n";
+    echo count($database);
+    mysql_close($link);die();
     return $resultado;
 }
 
@@ -40,7 +56,7 @@ function lista_db(){
     echo "Please complete all information relating to the database server\n";
     echo "servername,username,pass :: ";
     $valor_teclado = trim(fgets(STDIN));
-    $host_valu=dividir($valor_teclado);
+    $host_valu=$this->dividir($valor_teclado);
     $host=$host_valu[0];
     $user=$host_valu[1];
     $pass=$host_valu[2];
@@ -53,6 +69,7 @@ function lista_db(){
                 echo $row["Database"]."\n";
             }
     }
+    mysql_close($link);
 }
 
 /**
@@ -84,6 +101,7 @@ function all_tables($host,$user,$pass){
                 $status = $backupDatabase->backupTables("*") ? 'OK' : 'KO';
             }
         }
+        mysql_close($link);
 }
 
 /**
@@ -97,9 +115,8 @@ function all_tables($host,$user,$pass){
  * @author Marco Ramirez
  */
 function back_db1($host,$user,$pass,$dataname){
-    //var_dump($dataname);
         $validador=$this->vali_db($host,$user,$pass,$dataname);
-        print_r($validador);
+        print_r("Este es el valor del validado :".$validador);
         if($validador){
             $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
             var_dump($dataname);
@@ -132,10 +149,10 @@ function back_db1($host,$user,$pass,$dataname){
                         echo "Data Base ".$dataname."doesn't exist!\nplease reconnect to the server and review the name of the available databases!\n";
                         lista_db();
                     }
-                
+                echo "\nPlease, verify if the databases exist!\nYou can use the command listdb";
             } 
-        }
-        echo "\nPlease, verify if the databases exist!\nYou can use the command listdb";
+            mysql_close($link);
+        }         
 }
 
 /**
@@ -146,7 +163,7 @@ function back_db1($host,$user,$pass,$dataname){
  * 
  * @author Marco Ramirez
  */
-function backup_databases($table=NULL){
+function backup_databases($table){
     echo "Please complete all information relating to the database server\n";
     echo "servername,username,pass :: ";
     $valor_teclado = trim(fgets(STDIN));
@@ -154,25 +171,30 @@ function backup_databases($table=NULL){
     $host=$host_valu[0];
     $user=$host_valu[1];
     $pass=$host_valu[2];
+    $this->host=$host;
+    $this->username=$user;
+    $this->passwd=$pass;
+    $this->dbName=$table;
     echo "These were the values entered ::".$host." ".$user." ".$pass."\n";
     $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
     if(isset($table)){
         echo $table."\n";
         if(strpos($table,",")){
             echo "hay comas\n";
-            $tablas=dividir($table);
+            $tablas=$this->dividir($table);
             print_r($tablas);
-            back_db1($host,$user,$pass,$tablas);
+            $this->back_db1($host,$user,$pass,$tablas);
         } 
         else {
             echo "no hay comas\n";
-            if ($table==="*"){all_tables($host,$user,$pass);}
+            if ($table==="*"){$this->all_tables($host,$user,$pass);}
             else { $this->back_db1($host,$user,$pass,(array)$table);}
             
             }
         $status="Done";
         //echo "Backup successful $status !!!!!\nverify all the information in dbbackup folder!\n";
     }
+    //mysql_close($link);
     return $status;
 }
 
