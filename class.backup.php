@@ -179,25 +179,38 @@ function backup_databases($table){
 
 /**
  * Made a backup of your worspace(s)
- * @param $ruta ProcessMaker Path,
+ * @param string $workspace, ProcessMaker workspace name,
  * 
+ * @return string $ruta, new path.
  * @author Marco Ramirez
  */
-function workspace_backup(){
-    echo "please fill the full path of processmaker (PmPath/opt/processmaker) :: \r\n";
-    $valor_teclado1 = trim(fgets(STDIN));
-    $ruta="$valor_teclado1/shared/";
-    $nuevo= new zip_folder;
-    $nuevo->zipDir($ruta,"archivos/salida2.zip");
-    if (file_exists("dbbackup")) {
-        $nuevo->zipDir("./dbbackup","archivos/salida2.zip");
+function workspace_backup($workspace){
+    if($workspace==="*"){
+        echo "\nplease fill the full path of processmaker (PmPath/opt/processmaker) :: \r\n";
+        $valor_teclado1 = trim(fgets(STDIN));
+        $ruta="$valor_teclado1/shared/sites/";
+        $nuevo= new zip_folder;
+        $nuevo->zipDir($ruta,"archivos/salida2.zip");
+        if (file_exists("dbbackup")) {
+            $nuevo->zipDir("./dbbackup","archivos/salida2.zip");
+        }
+    }
+    else{
+        echo "\nplease fill the full path of processmaker (PmPath/opt/processmaker) :: \r\n";
+        $valor_teclado1 = trim(fgets(STDIN));
+        $ruta="$valor_teclado1/shared/sites/$workspace/";
+        $nuevo= new zip_folder;
+        $nuevo->zipDir($ruta,"archivos/salida2.zip");
+        if (file_exists("dbbackup")) {
+            $nuevo->zipDir("./dbbackup","archivos/salida2.zip");
+        }
     }
     return $ruta;
 }
 
 function backup_all(){
     $this->backup_databases("*");
-    $n_ruta=$this->workspace_backup();
+    $n_ruta=$this->workspace_backup("*");
     if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
         exec("tar -cPzvf archivo.tar.gz $n_ruta");
     }

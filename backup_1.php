@@ -18,25 +18,38 @@ for($i=1;$cantidad>$i;$i++){
             case $argv[$i]=="databases":
                 $flag=1;
                 echo "This is for backup a database or all\n";
-                echo count($argv)."\n";
                 if(count($argv)>2){$valor2=$argv[$i+1];
                     if($valor2!=="workspace" && $valor2!=="backup" && $valor2!==" "){
                         echo "-----".$valor2."-----\n";
+                        $status=$pm_back->backup_databases($valor2);
                     }
                 }
                 else {die('Please use the next parameters "*" or database name "DB1,DB2,DB3"'."\n");}
-                $status=$pm_back->backup_databases($valor2);
                 break;
             case $argv[$i]=="workspace":
                 $flag=1;
-                echo "This is for workspace\n";
-                echo "Done!!!";
+                echo "This is for workspace\nPlease check that you have enough hard disk space to contain all compressed archives.\n";
+                echo "Do you? (Y/N):";
+                $aceptar = strtoupper(trim(fgets(STDIN)));
+                if ($aceptar==="Y"){
+                    if(count($argv)>2){$valor2=$argv[$i+1];
+                        if($valor2!=="databases" && $valor2!=="backup" && $valor2!==" "){
+                            echo "-----".$valor2."-----\n";
+                            $status=$pm_back->workspace_backup($valor2);
+                        }
+                    }
+                    else {die('Please use the next parameters "*" or workspace name "workflow,site1,test,etc"'."\n");}
+                }
                 break;
             case $argv[$i]=="backup":
                 $flag=1;
-                echo "this is for a complete backup\n";
-                $pm_back->backup_all();
-                echo "I hope everything is good!?!?!?!\n";
+                echo "This is for full backup\nPlease check that you have enough hard disk space to contain all compressed archives.\n";
+                echo "Do you? (Y/N):";
+                $aceptar = strtoupper(trim(fgets(STDIN)));
+                if ($aceptar==="Y") {
+                    $pm_back->backup_all();
+                    echo "I hope everything is good!?!?!?!\n";
+                }
                 break;
             case $argv[$i]=="listdb":
                 $flag=1;

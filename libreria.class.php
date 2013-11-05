@@ -23,7 +23,7 @@ class zip_folder
         if (is_file($filePath)) { 
           $zipFile->addFile($filePath, $localPath); 
         } elseif (is_dir($filePath)) { 
-          // Add sub-directory. 
+          // Add sub-directory. recursivity 
           $zipFile->addEmptyDir($localPath); 
           self::folderToZip($filePath, $zipFile, $exclusiveLength); 
         } 
@@ -48,6 +48,7 @@ class zip_folder
     //die($parentPath);
     if (!file_exists("archivos")) mkdir("archivos");
     $z = new ZipArchive(); 
+    echo "\nCompressing, please wait!\n";
     $res=$z->open($outZipPath, ZIPARCHIVE::CREATE); 
     if ($res === TRUE) {
         $z->addEmptyDir($dirName); 
