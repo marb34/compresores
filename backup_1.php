@@ -56,11 +56,12 @@ for($i=1;$cantidad>$i;$i++){
 }
 if (!isset($argv[1]) && $flag == 0 ){
     echo "puede elegir entre las siguientes opciones\nYou can Choose between the next options:\n";
-    echo "backup\n";
-    echo "workspace\n";
-    echo "databases\n";
-    echo "listdb\n";
-    echo "otro\n";
+    echo "-------------------------------------------------------\n";
+    echo "<backup>, for make a complete backup\n";
+    echo "<workspace>, for make a specific workspace backup (without databases)\n";
+    echo "<databases>, for make a Databases backup\n";
+    echo "<listdb>, to see all the PM databases\n";
+    echo "<otro>\n";
 }
 
 ?>

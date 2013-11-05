@@ -25,27 +25,16 @@ class pm_backup {
 function vali_db($host,$user,$pass,$database){
     $o=0;
     $resultado=0;
-    $link = mysql_connect("$host","$user","$pass") or die("Can't Connect to the Data Base...");
+    $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
     $res=mysql_list_dbs($link);
-    $row=mysql_fetch_assoc($res);
-    /*echo "resultado de consulta ::";
-    print_r($row)."\n";
-    echo "Arreglos : ";
-    print_r($row);
-    print_r($database);*/
     while ($row = mysql_fetch_assoc($res)) {
-        //echo $row["Database"]."\n";
         $compara=array_intersect($database,$row);
-        if (count($compara)>0){
-            var_dump($compara);
-            $o++;
+        if (count($compara)>0) $o++;
+        if(count($database)==$o){
+            $resultado=1;
         }
-        $resultado=1;
-        
     }
-    echo $o."\n";
-    echo count($database);
-    mysql_close($link);die();
+    mysql_close($link);
     return $resultado;
 }
 
@@ -90,15 +79,16 @@ function dividir($variable){
  * @author Marco Ramirez
  */
 function all_tables($host,$user,$pass){
-        $link = mysql_connect("$host","$user","$pass") or die("Can't Connect to the Data Base...");
+        $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
         echo "\nprocessing!!\n";
         $res = mysql_query('SHOW DATABASES');
         while ($row = mysql_fetch_assoc($res)) {
             if (substr($row["Database"],0,3)==="wf_" or substr($row["Database"],0,3)==="rp_" or substr($row["Database"],0,3)==="rb_" )
             {
                 $archivo22=$row["Database"];
-                $backupDatabase = new Backup_Database("$host","$user","$pass", $archivo22);
-                $status = $backupDatabase->backupTables("*") ? 'OK' : 'KO';
+                $pm_back1= new Clase_Backup_Database;
+                $backupDatabase = $pm_back1->Backup_Database($host,$user,$pass, $archivo22);
+                $status = $pm_back1->backupTables("*") ? 'OK' : 'KO';
             }
         }
         mysql_close($link);
@@ -116,43 +106,37 @@ function all_tables($host,$user,$pass){
  */
 function back_db1($host,$user,$pass,$dataname){
         $validador=$this->vali_db($host,$user,$pass,$dataname);
-        print_r("Este es el valor del validado :".$validador);
         if($validador){
             $link = mysql_connect($host,$user,$pass) or die("Can't Connect to the Data Base...");
-            var_dump($dataname);
             echo "\nprocessing!!\n";
-            if (is_array($dataname)){
+            if (count($dataname)>1){
                 for ($i=0;$i<count($dataname);$i++){
                     $db_name=$dataname[$i];
+                    echo "\n".$db_name;
                     $status2=new Clase_Backup_Database;
                     $valor_retorno=$status2->Backup_Database($host,$user,$pass,$db_name);
-                    echo "\nValor de retorno de la clase :".$valor_retorno."\n";
                     if($valor_retorno){
                         $status = $status2->backupTables("*") ? 'OK' : 'KO';
-                    }
-                    else {
-                        echo "Data Base ".$db_name." doesn't exist!\nplease reconnect to the server and review the name of the available databases!\n";
-                        lista_db();
+                        echo "\nBackup successful $status !!!!!\nverify all the information in dbbackup folder!\n";
                     }
                 }
-            //echo "Backup successful $status !!!!!\nverify all the information in dbbackup folder!\n"; 
             }
             else {
                 $status2=new Clase_Backup_Database;
-                $valor_retorno=$status2->Backup_Database($host,$user,$pass,$dataname);
-                echo "\nValor de retorno de la clase :".$valor_retorno."\n";
+                $db_name=$dataname[0];
+                echo "\n".$db_name;
+                $valor_retorno=$status2->Backup_Database($host,$user,$pass,$db_name);
                 if($valor_retorno){
                         $status = $status2->backupTables("*") ? 'OK' : 'KO';
-                        echo "Backup successful $status !!!!!\nverify all the information in dbbackup folder!\n";
-                    }
-                    else {
-                        echo "Data Base ".$dataname."doesn't exist!\nplease reconnect to the server and review the name of the available databases!\n";
-                        lista_db();
-                    }
-                echo "\nPlease, verify if the databases exist!\nYou can use the command listdb";
+                        echo "\nBackup successful $status !!!!!\nverify all the information in dbbackup folder!\n";
+                }
             } 
-            mysql_close($link);
-        }         
+        }
+        else { 
+            echo "\nOne of the Data Bases doesn't exist!\nplease reconnect to the server and review the name of the available databases!\n";
+            echo "-------------------------------------------------------------------------------\n";
+            $this->lista_db();
+        }        
 }
 
 /**
@@ -180,21 +164,16 @@ function backup_databases($table){
     if(isset($table)){
         echo $table."\n";
         if(strpos($table,",")){
-            echo "hay comas\n";
             $tablas=$this->dividir($table);
-            print_r($tablas);
             $this->back_db1($host,$user,$pass,$tablas);
         } 
         else {
-            echo "no hay comas\n";
             if ($table==="*"){$this->all_tables($host,$user,$pass);}
             else { $this->back_db1($host,$user,$pass,(array)$table);}
             
             }
         $status="Done";
-        //echo "Backup successful $status !!!!!\nverify all the information in dbbackup folder!\n";
     }
-    //mysql_close($link);
     return $status;
 }
 
@@ -217,8 +196,8 @@ function workspace_backup(){
 }
 
 function backup_all(){
-    backup_databases();
-    $n_ruta=workspace_backup();
+    $this->backup_databases("*");
+    $n_ruta=$this->workspace_backup();
     if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
         exec("tar -cPzvf archivo.tar.gz $n_ruta");
     }
