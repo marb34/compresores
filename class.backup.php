@@ -64,6 +64,7 @@ function lista_db(){
 /**
  * Explode all the string separated by comma
  * @param string $variable
+ * @return array
  */
 function dividir($variable){
     $resultado3=explode(",",$variable);
